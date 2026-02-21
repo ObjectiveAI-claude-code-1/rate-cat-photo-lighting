@@ -1,0 +1,163 @@
+{
+  "type": "scalar.function",
+  "input_schema": {
+    "type": "object",
+    "description": "A photograph of a cat to evaluate for lighting quality.",
+    "properties": {
+      "cat_photo": {
+        "type": "image",
+        "description": "A photograph containing a cat. The image will be evaluated for how effectively its lighting reveals the cat as a subject, scoring subject clarity, tonal balance, and lighting integrity."
+      }
+    },
+    "required": [
+      "cat_photo"
+    ]
+  },
+  "tasks": [
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.cat_photo"
+            },
+            {
+              "type": "text",
+              "text": "How clearly does the lighting in this photograph reveal the cat? Consider whether the cat's face, eyes, fur texture, and body shape are visible without effort, or whether the cat appears as a vague, indistinct shape."
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The cat is fully and clearly revealed by the lighting. Its face, eyes, fur texture, and body form are all effortlessly visible. The light makes the cat easy to see and appreciate as a three-dimensional, textured animal."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is mostly visible. Its main features can be seen, though some areas of the face or fur lack full definition or require a bit of effort to make out clearly."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is only partially visible. Significant parts of its face, fur, or body are obscured or indistinct, and the viewer has to strain to perceive the cat's features."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The cat is very difficult to see. The lighting fails to reveal it — the cat appears as a vague shape with almost no discernible facial features, fur texture, or body form."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.667 + output['scores'][2] * 0.333 + output['scores'][3] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            {
+              "type": "text",
+              "text": "You are evaluating the exposure and tonal range in cat photographs. Focus on whether detail is preserved across the brightest and darkest areas of the cat's body. Gentle shadows that give dimension are natural and welcome. The failures are at the extremes: overexposure that erases fur and features into featureless white, or underexposure that collapses the cat into an unreadable silhouette."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "$jmespath": "input.cat_photo"
+            },
+            {
+              "type": "text",
+              "text": "Is the tonal range across the cat well-balanced, or has detail been lost to overexposure or deep shadow?"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The tonal range is well balanced. Both the brightest and darkest areas of the cat retain visible texture and detail. Nothing is blown out into white or lost to impenetrable shadow. The light preserves information across the entire cat."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The tonal range is somewhat uneven. Some areas of the cat have lost detail to overexposure or shadow, but the cat remains mostly readable and its features are still identifiable."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The tonal range has significant problems. Large portions of the cat are either washed out into featureless white or swallowed into impenetrable darkness, destroying the detail needed to see and identify the cat."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.5 + output['scores'][2] * 0.0"
+      }
+    },
+    {
+      "type": "vector.completion",
+      "skip": null,
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "I took this photo of my cat. Does the lighting look natural and clean, or is it affected by glare, hot spots, or unnatural color casts?"
+            },
+            {
+              "$jmespath": "input.cat_photo"
+            }
+          ]
+        }
+      ],
+      "responses": [
+        [
+          {
+            "type": "text",
+            "text": "The lighting looks clean and natural. There are no distracting artifacts — no harsh glare, no unnatural color casts, no hot spots. The light feels trustworthy and invisible, letting the cat look like itself."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The lighting is mostly natural. There may be a slight color temperature shift or minor imperfection, but it feels coherent and does not meaningfully distract from the cat."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The lighting has noticeable problems. There are visible color casts, areas of glare, or other artifacts that draw attention away from the cat and toward the lighting conditions themselves."
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The lighting is severely compromised by artifacts. Harsh glare, extreme unnatural color casts, or bright hot spots dominate the image, significantly distorting how the cat appears and making the light itself the most noticeable element in the photo."
+          }
+        ]
+      ],
+      "output": {
+        "$starlark": "output['scores'][0] * 1.0 + output['scores'][1] * 0.667 + output['scores'][2] * 0.333 + output['scores'][3] * 0.0"
+      }
+    }
+  ],
+  "description": "Scores how effectively the lighting in a cat photograph reveals the cat as a subject. Evaluates subject clarity, tonal balance, and lighting integrity. The standard is functional light that makes the cat visible and appreciable — not studio perfection. Penalizes overexposure, deep shadow, glare, and unnatural color casts."
+}
